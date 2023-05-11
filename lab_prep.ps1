@@ -8,6 +8,7 @@
 #   - VSCode
 # - Export-WinEvents from Security-Datasets
 # - My two Sysmon Configs
+# - Sysmon (w/ config)
 # Sets auditpol for everything to max
 Set-MpPreference -DisableRealtimeMonitoring $true
 Set-MpPreference -ExclusionPath C:\AtomicRedTeam\*
@@ -30,3 +31,4 @@ IWR "https://gist.githubusercontent.com/cnnrshd/b07cf1e7894e381b820fba29bc6362f6
 IWR "https://raw.githubusercontent.com/cnnrshd/sysmon-modular/master/config_lists/default_list/default_list_config.xml" -UseBasicParsing -OutFile C:\Configs\standard_config.xml
 # Set auditpol to get all possible events
 auditpol /set /category:*
+sysmon -i C:\Configs\standard_config.xml | %{ "$_"}
