@@ -9,7 +9,7 @@ param(
 
     [Parameter()]
     [int]
-    $EndTest = 10,
+    $EndTest = 2000,
 
     [Parameter()]
     [string]
