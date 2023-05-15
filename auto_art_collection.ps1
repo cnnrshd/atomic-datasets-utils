@@ -64,29 +64,34 @@ foreach ($technique in $techniques) {
             if (!(Test-Path $TestFolder)) {
                 New-Item -Path $TestFolder -Force -ItemType Directory
             }
-            # Get Prereqs for test
-            Invoke-AtomicTest $technique.attack_technique -TestGuids $atomic.auto_generated_guid -GetPrereqs -InformationVariable PrereqResponse
-            if ($PrereqResponse | Select-String -Quiet "Failed to meet prereq") {
-                $Failure = "Failed to meet Prereq"
-            } elseif ($PrereqResponse | Select-String -Quiet "Elevation required but not provided") {
-                $Failure = "Possible Elevation Error"
+            # Check if test messes with Sysmon - if so, skip it
+            if ($atomic.name | Select-String -Quiet "Sysmon") {
+                $Failure = "Skipped - uses Sysmon"
             } else {
-                Invoke-AtomicTest $technique.attack_technique -TestGuids $atomic.auto_generated_guid -CheckPrereqs -InformationVariable CheckResponse
-                # TODO: check that prereq was successfully acquired
-                if ($CheckResponse | Select-String -Quiet "Prerequisites not met") {
-                    $Failure = "Error - Failed CheckPrereq after Successful GetPrereq"
+                # Get Prereqs for test
+                Invoke-AtomicTest $technique.attack_technique -TestGuids $atomic.auto_generated_guid -GetPrereqs -InformationVariable PrereqResponse
+                if ($PrereqResponse | Select-String -Quiet "Failed to meet prereq") {
+                    $Failure = "Failed to meet Prereq"
+                } elseif ($PrereqResponse | Select-String -Quiet "Elevation required but not provided") {
+                    $Failure = "Possible Elevation Error"
                 } else {
-                    # I tried using -StartDate and -EndDate but it didn't work
-                    $Channels | Clear-WinEvents
-                    # Invoke
-                    Invoke-AtomicTest $technique.attack_technique -TestGuids $atomic.auto_generated_guid -InformationVariable TestResponse
-                    # Sleep 1 second & export
-                    Start-Sleep 1
-                    $Channels | Export-WinEvents -OutputFolder $TestFolder
-                    # Clean
-                    Invoke-AtomicTest  $technique.attack_technique -TestGuids $atomic.auto_generated_guid -Cleanup
-                    # Dump test data to files
-                    $TestStatus = "Successful"
+                    Invoke-AtomicTest $technique.attack_technique -TestGuids $atomic.auto_generated_guid -CheckPrereqs -InformationVariable CheckResponse
+                    # TODO: check that prereq was successfully acquired
+                    if ($CheckResponse | Select-String -Quiet "Prerequisites not met") {
+                        $Failure = "Error - Failed CheckPrereq after Successful GetPrereq"
+                    } else {
+                        # I tried using -StartDate and -EndDate but it didn't work
+                        $Channels | Clear-WinEvents
+                        # Invoke
+                        Invoke-AtomicTest $technique.attack_technique -TestGuids $atomic.auto_generated_guid -InformationVariable TestResponse
+                        # Sleep 1 second & export
+                        Start-Sleep 1
+                        $Channels | Export-WinEvents -OutputFolder $TestFolder
+                        # Clean
+                        Invoke-AtomicTest  $technique.attack_technique -TestGuids $atomic.auto_generated_guid -Cleanup
+                        # Dump test data to files
+                        $TestStatus = "Successful"
+                    }
                 }
             }
             $StatusObj = [PSCustomObject]@{
