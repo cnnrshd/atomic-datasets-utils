@@ -17,7 +17,11 @@ param(
 
     [Parameter()]
     [string]
-    $ResearchConfig = "C:\Configs\research_config.xml"
+    $ResearchConfig = "C:\Configs\research_config.xml",
+    
+    [Parameter()]
+    [boolean]
+    $AvoidShutdowns = $True
 )
 
 import-module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
@@ -67,6 +71,8 @@ foreach ($technique in $techniques) {
             # Check if test messes with Sysmon - if so, skip it
             if ($atomic.name | Select-String -Quiet "Sysmon") {
                 $Failure = "Skipped - uses Sysmon"
+            } elseif ($AvoidShutdowns -And ($TechniqueID | Select-String -Quiet "T1529")) {
+                $Failure = "Skipped - avoiding shutdowns"
             } else {
                 # Get Prereqs for test
                 Invoke-AtomicTest $technique.attack_technique -TestGuids $atomic.auto_generated_guid -GetPrereqs -InformationVariable PrereqResponse
