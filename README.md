@@ -7,7 +7,7 @@ The goal with this repo is to include all the tools or references to tools you'd
 ## Workflow
 
 1. Make a Windows VM (or several) to test against
-2. [Update PowerShell to Version 7](https://learn.microsoft.com/en-us/powershell/scripting/whats-new/migrating-from-windows-powershell-51-to-powershell-7?view=powershell-7.3) or you're going to have a rough time with UTF-8BOM or UTF-16LE later on.
+2. [Update PowerShell to Version 7](https://learn.microsoft.com/en-us/powershell/scripting/whats-new/migrating-from-windows-powershell-51-to-powershell-7?view=powershell-7.3) or you're going to have a rough time with [UTF-8BOM or UTF-16LE later on](https://stackoverflow.com/a/34969243).
 3. Run [lab_prep.ps1](./lab_prep.ps1) against each VM
 4. Run [auto_art_collection.ps1](./auto_art_collection.ps1) against each VM - be sure to specify StartTest and EndTest if running on multiple systems
 5. Merge all the results
@@ -18,6 +18,14 @@ The goal with this repo is to include all the tools or references to tools you'd
 7. Run [find_successful_tests.sh](./find_successful_tests.sh) to get a JSON list of all tests that return successful
 8. Run [merge_log_files.sh](./merge_log_files.sh) to combine all log files for each test into their own json file
 9. Go to my [Sysmon toolset](https://github.com/cnnrshd/sysmon_utils) to test your data (May update this repo with a script to run those tests)
+    - For testing, I will alternate between `sysmon_utils atomictests` and `sysmon_utils merge` - Run a test, look for missing detections, add them to Sysmon config, re-run.
+
+### Issues
+
+These tools allow for (mostly) unattended data collection. Below are some caveats.
+
+- Some tests will [break data collection](https://github.com/cnnrshd/atomic-datasets-utils/issues/5). Right now I've tried to hard-code some techniques to avoid, but for some reason my Exclude on T1562 isn't working. If you use the -StartTest and -EndTest flags, T1562 is around 830-840, so you can run two iterations - one with -EndTest 830 and one with -StartTest 850.
+- Some tests have [manual prerequisite installation steps](https://github.com/cnnrshd/atomic-datasets-utils/issues/2). This is an issue with the prereq installation a subset of Atomic-RedTeam tests.
 
 ## Utils
 
