@@ -63,7 +63,6 @@ foreach ($technique in $techniques) {
             $CheckResponse = "NA"
             $Failure = "NA"
             $TestResponse = "NA"
-            
             $TestFolder = "$TestDirectory\$TechniqueID\$Count"
             if (!(Test-Path $TestFolder)) {
                 New-Item -Path $TestFolder -Force -ItemType Directory
@@ -73,6 +72,8 @@ foreach ($technique in $techniques) {
                 $Failure = "Skipped - uses Sysmon"
             } elseif ($AvoidShutdowns -And ($TechniqueID | Select-String -Quiet "T1529")) {
                 $Failure = "Skipped - avoiding shutdowns"
+            } elseif ($TechniqueID -like "*T1562.001*" -and $Count -eq 30) {
+                $Failure = "Skipped - this test breaks Sysmon"
             } else {
                 # Get Prereqs for test
                 Invoke-AtomicTest $technique.attack_technique -TestGuids $atomic.auto_generated_guid -GetPrereqs -InformationVariable PrereqResponse
@@ -114,8 +115,9 @@ foreach ($technique in $techniques) {
             }
             $StatusObj | ConvertTo-Json | Out-File "$($TestFolder)\status.json"
         }
-        $Count += 1
+        
     }
+    $Count += 1
 }
 
 Sysmon64.exe -c $DefaultConfig | ForEach-Object{ "$_" }
