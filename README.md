@@ -16,8 +16,8 @@ The goal with this repo is to include all the tools or references to tools you'd
     - Optionally, convert the `sh` scripts to PowerShell - ForEach-Object should function similarly to `find -exec`
     - The data size should be ~70-90MB when compressed to a ZIP, default options, so it's easy to move.
 7. Run [find_successful_tests.sh](./find_successful_tests.sh) to get a JSON list of all tests that return successful
-8. Run [merge_log_files.sh](./merge_log_files.sh) to combine all log files for each test into their own json file
-9. Go to my [Sysmon toolset](https://github.com/cnnrshd/sysmon_utils) to test your data (May update this repo with a script to run those tests)
+8. Run [merge_log_files.sh](./merge_log_files.sh) to combine all log files for each test into their own json file - Each [auto_art_collection.ps1](./auto_art_collection.ps1) run will extract each logging Channel to a separate file, such as "Sysmon", "Security", etc. This merges all of those files into a single `.json` for each event.
+10. Go to my [Sysmon toolset](https://github.com/cnnrshd/sysmon_utils) to test your data (May update this repo with a script to run those tests)
     - For testing, I will alternate between `sysmon_utils atomictests` and `sysmon_utils merge` - Run a test, look for missing detections, add them to Sysmon config, re-run.
 
 ### Issues
